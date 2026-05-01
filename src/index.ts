@@ -1,11 +1,14 @@
 import express from "express";
-import { handlerReadiness } from "./api/handlers.js";
+import { handlerReadiness, handlerMetrics, handlerReset, middlewareLogResponses, middlewareMetricsInc } from "./api/handlers.js";
 
 const app = express();
 const PORT = 8080;
 
-app.use("/app", express.static("./src/app"));
+app.use(middlewareLogResponses);
+app.use("/app", middlewareMetricsInc, express.static("./src/app"));
 
+app.get("/metrics", handlerMetrics);
+app.get("/reset", handlerReset);
 app.get("/healthz", handlerReadiness);
 
 app.listen(PORT, () => {
