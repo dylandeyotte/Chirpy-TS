@@ -16,7 +16,13 @@ export function middlewareMetricsInc(req: Request, res: Response, next: NextFunc
 }
 
 export async function handlerMetrics(req: Request, res: Response) {
-  res.send(`Hits: ${config.fileserverHits}`);
+  res.set("Content-Type", "text/html");
+  res.send(`<html>
+  <body>
+    <h1>Welcome, Chirpy Admin</h1>
+    <p>Chirpy has been visited ${config.fileserverHits} times!</p>
+  </body>
+</html>`);
 }
 
 export async function handlerReset(req: Request, res: Response, next: NextFunction) {
