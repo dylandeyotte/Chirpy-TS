@@ -17,31 +17,40 @@ export function middlewareMetricsInc(req: Request, res: Response, next: NextFunc
 }
 
 export async function handlerValidate(req: Request, res: Response) {
+  // Make parameters for request
   type parameters = {
     body: string;
   };
 
-  let body = "";
+  // Parse request into params via express middleware
+  const params: parameters = req.body;
+  const body = params.body;
 
-  req.on("data", (chunk) => {
-    body += chunk;
-  });
+  // Check if length is too long
+  if (params.body.length > 140) {
+    respondWithError(res, 400, "Chirp is too long");
+    return;
+  }
 
-  let params: parameters;
-  req.on("end", () => {
-    try {
-      params = JSON.parse(body);
-    } catch (err) {
-      respondWithError(res, 400, "Something went wrong");
-      return;
+  // Find bad words and censor them
+  const splitWords = body.split(" ");
+
+  for (let i = 0; i < splitWords.length; i++) {
+    if (
+      splitWords[i].toLowerCase() === "kerfuffle" ||
+      splitWords[i].toLowerCase() === "sharbert" ||
+      splitWords[i].toLowerCase() === "fornax"
+    ) {
+      // 1984
+      splitWords[i] = "****";
     }
-    if (params.body.length > 140) {
-      respondWithError(res, 400, "Chirp is too long");
-      return;
-    }
-    respondWithJSON(res, 200, {
-      valid: true,
-    });
+  }
+
+  const newBody = splitWords.join(" ");
+
+  // Respond with cleaned text
+  respondWithJSON(res, 200, {
+    cleanedBody: newBody,
   });
 }
 
